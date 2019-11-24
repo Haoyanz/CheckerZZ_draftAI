@@ -5,12 +5,17 @@ import java.util.Vector;
 // Students can modify anything except the class name and exisiting functions and varibles.
 
 public class StudentAI extends AI {
+
+    private int movesMade;
+
     public StudentAI(int col, int row, int k) throws InvalidParameterError {
         super(col, row, k);
 
         this.board = new Board(col, row, k);
         this.board.initializeGame();
         this.player = 2;
+
+        this.movesMade = 0;
     }
 
     public Move GetMove(Move move) throws InvalidMoveError {
@@ -26,13 +31,39 @@ public class StudentAI extends AI {
         Vector<Vector<Move>> allPossibleMoves = board.getAllPossibleMoves(player);
 
         ScoreMove[] sm = new ScoreMove[]{new ScoreMove(getHeuristic(board), allPossibleMoves.get(0).get(0))};
-        alphaBeta(8, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+        if(board.col * board.row <= 56) { //small board
+            if (movesMade < 3) { //early game
+                alphaBeta(6, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+            } else {             //late game
+                alphaBeta(10, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+            }
+        } else {                          //larger board
+            if (movesMade < 10) { //early game
+                alphaBeta(5, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+            } else if (movesMade > 20) { //late game
+                alphaBeta(5, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+            } else {
+                alphaBeta(8, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+            }
+        }
         board.makeMove(sm[0].move, player);
+        movesMade++;
         return sm[0].move;
     }
 
     public int getHeuristic(Board board) {
-        return board.blackCount - board.whiteCount;
+        int blackKing = 0;
+        int whiteKing = 0;
+        for(Vector<Checker> checkers : board.board){
+            for(Checker checker : checkers){
+                if(checker.color.equals("B") && checker.isKing){
+                    blackKing++;
+                } else if(checker.color.equals("W") && checker.isKing){
+                    whiteKing++;
+                }
+            }
+        }
+        return board.blackCount - board.whiteCount + blackKing * 3 - whiteKing * 3;
     }
 
     public int alphaBeta(int depth, int player, int alpha, int beta, Board board, ScoreMove[] sm) throws InvalidMoveError{
@@ -89,65 +120,11 @@ public class StudentAI extends AI {
     }
 }
 
-//        if (player == 1) {
-//
-//                int maxHeuristic = Integer.MIN_VALUE;
-//                Move bestMoveMax = moves.get(0).get(0);
-//                for (Vector<Move> checkerToMove : moves) {
-//        for (Move tryMove : checkerToMove) {
-//
-//        board.makeMove(tryMove, player);
-//        Vector<Vector<Move>> movesMin = board.getAllPossibleMoves(2);
-//
-//        //int minHeuristic = Integer.MAX_VALUE;
-//        //Move bestMoveMin = null;
-//
-//        for (Vector<Move> checkerToMoveMin : movesMin) {
-//        for (Move tryMoveMin : checkerToMoveMin) {
-//
-//        board.makeMove(tryMoveMin, 2);
-//        if (getHeuristic(board) > maxHeuristic) {
-//        maxHeuristic = getHeuristic(board);
-//        bestMoveMax = tryMove;
-//        }
-//        board.Undo();
-//
-//        }
-//        }
-//
-//        board.Undo();
-//
-//        }
-//        }
-//        board.makeMove(bestMoveMax, player);
-//        return bestMoveMax;
-//        } else {
-//
-//        int minHeuristic = Integer.MAX_VALUE;
-//        Move bestMoveMin = moves.get(0).get(0);
-//        for (Vector<Move> checkerToMove : moves) {
-//        for (Move tryMove : checkerToMove) {
-//
-//        board.makeMove(tryMove, player);
-//        Vector<Vector<Move>> movesMax = board.getAllPossibleMoves(1);
-//
-//        for (Vector<Move> checkerToMoveMax : movesMax) {
-//        for (Move tryMoveMax : checkerToMoveMax) {
-//
-//        board.makeMove(tryMoveMax, 1);
-//        if (getHeuristic(board) < minHeuristic) {
-//        minHeuristic = getHeuristic(board);
-//        bestMoveMin = tryMove;
-//        }
-//        board.Undo();
-//
-//        }
-//        }
-//
-//        board.Undo();
-//
-//        }
-//        }
-//        board.makeMove(bestMoveMin, player);
-//        return bestMoveMin;
-//        }
+/**
+ * further improvement
+ *  change determinant of early game (# of movesMade)
+ *  change heuristic function
+ *  flatten 2-D Vectors and rearrange the Moves
+ */
+
+//python3 AI_Runner.py 9 8 2 l ../src/checkers-java/Main.jar Sample_AIs/Poor_AI/main.py
