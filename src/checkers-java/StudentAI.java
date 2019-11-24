@@ -35,7 +35,7 @@ public class StudentAI extends AI {
             if (movesMade < 3) { //early game
                 alphaBeta(6, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
             } else {             //late game
-                alphaBeta(10, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+                alphaBeta(8, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
             }
         } else {                          //larger board
             if (movesMade < 10) { //early game
@@ -43,7 +43,7 @@ public class StudentAI extends AI {
             } else if (movesMade > 20) { //late game
                 alphaBeta(5, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
             } else {
-                alphaBeta(8, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
+                alphaBeta(7, player, Integer.MIN_VALUE, Integer.MAX_VALUE, board, sm);
             }
         }
         board.makeMove(sm[0].move, player);
